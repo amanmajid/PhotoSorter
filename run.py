@@ -2,9 +2,14 @@ from src.PhotoSorter import PhotoSorter
 import os
 
 #####################
-m = PhotoSorter()
+# MAIN
 
-# divide by filetype
+# init
+media = PhotoSorter()
+
+# divide media files by filetype
 os.mkdir(os.path.join(os.getcwd(),'sorted','separated'))
 outdir = os.path.join(os.getcwd(),'sorted','separated')
-m.separate(copy=True,outdir=outdir)
+media.separate(copy=False,outdir=outdir)
+
+# organise media files into year and months

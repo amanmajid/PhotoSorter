@@ -40,7 +40,8 @@ class PhotoSorter():
             os.mkdir(ipath)
             
         # loop files and separate
-        count = 0
+        pic_count = 0
+        vid_count = 0
         for i in tqdm(range(0,len(self.subdirs))):
             idir = self.subdirs[i]
             os.chdir(idir)
@@ -50,21 +51,26 @@ class PhotoSorter():
                 try:
                     if k.MIME.split('/')[0]=='image':
                         cur_fpath = os.path.join(idir,file)
-                        out_fpath = os.path.join(outdir,'Photos',''.join(['pic_',str(count),'.',k.extension]))
+                        out_fpath = os.path.join(outdir,'Photos',''.join(['IMG_',str(pic_count),'.',k.extension]))
                         if copy==False:
                             shutil.move(cur_fpath, out_fpath)
                         elif copy==True:
                             shutil.copy2(cur_fpath, out_fpath)
+                        pic_count = pic_count + 1
+                    
                     elif k.MIME.split('/')[0]=='video':
                         cur_fpath = os.path.join(idir,file)
-                        out_fpath = os.path.join(outdir,'Videos',''.join(['vid_',str(count),'.',k.extension]))
+                        out_fpath = os.path.join(outdir,'Videos',''.join(['VID_',str(vid_count),'.',k.extension]))
                         if copy==False:
                             shutil.move(cur_fpath, out_fpath)
                         elif copy==True:
                             shutil.copy2(cur_fpath, out_fpath)
+                        vid_count = vid_count + 1
                 except:
                     pass
-                count = count + 1
         
         # restore dir
         os.chdir(self.curdir)
+    
+    def organise(self):
+        print('TO DO')
