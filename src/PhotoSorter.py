@@ -47,20 +47,23 @@ class PhotoSorter():
             files = [f for f in os.listdir('.') if os.path.isfile(f)]
             for file in files:
                 k = filetype.guess(file)
-                if k.MIME.split('/')[0]=='image':
-                    cur_fpath = os.path.join(idir,file)
-                    out_fpath = os.path.join(outdir,'Photos',''.join(['pic_',str(count),'.',k.extension]))
-                    if copy==False:
-                        shutil.move(cur_fpath, out_fpath)
-                    elif copy==True:
-                        shutil.copy2(cur_fpath, out_fpath)
-                elif k.MIME.split('/')[0]=='video':
-                    cur_fpath = os.path.join(idir,file)
-                    out_fpath = os.path.join(outdir,'Videos',''.join(['vid_',str(count),'.',k.extension]))
-                    if copy==False:
-                        shutil.move(cur_fpath, out_fpath)
-                    elif copy==True:
-                        shutil.copy2(cur_fpath, out_fpath)
+                try:
+                    if k.MIME.split('/')[0]=='image':
+                        cur_fpath = os.path.join(idir,file)
+                        out_fpath = os.path.join(outdir,'Photos',''.join(['pic_',str(count),'.',k.extension]))
+                        if copy==False:
+                            shutil.move(cur_fpath, out_fpath)
+                        elif copy==True:
+                            shutil.copy2(cur_fpath, out_fpath)
+                    elif k.MIME.split('/')[0]=='video':
+                        cur_fpath = os.path.join(idir,file)
+                        out_fpath = os.path.join(outdir,'Videos',''.join(['vid_',str(count),'.',k.extension]))
+                        if copy==False:
+                            shutil.move(cur_fpath, out_fpath)
+                        elif copy==True:
+                            shutil.copy2(cur_fpath, out_fpath)
+                except:
+                    pass
                 count = count + 1
         
         # restore dir
