@@ -72,5 +72,32 @@ class PhotoSorter():
         # restore dir
         os.chdir(self.curdir)
     
-    def organise(self):
-        print('TO DO')
+    def catch_duplicates(self,path,outdir=None):
+        ''' Method to catch possible duplicate files '''
+        
+        os.chdir(path)
+        if outdir==None:
+            output_path = os.path.join(os.getcwd(),'duplicates')
+            if os.path.isdir(output_path)==False:
+                os.mkdir(output_path)
+        
+        files = [f for f in os.listdir('.') if os.path.isfile(f)]
+        # build-up pandas dataframe of file metadata
+        #name = []
+        #size = []
+        count = 0
+        for file in files:
+            if count < 5:
+                print('hi')
+                #print(os.path.getsize(path))
+                #count = count + 1
+            #name.append(file)
+            #size.append(os.path.getsize(path))
+        
+        #metadata = pandas.DataFrame({'filename':name,
+        #                             'filesize':size})
+        #return metadata
+            
+    
+    # def organise(self):
+    #     print('TO DO')
