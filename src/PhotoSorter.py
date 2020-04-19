@@ -10,6 +10,7 @@ import filetype
 import os
 import shutil
 import pandas
+import numpy
 import time
 import datetime
 import PIL.Image
@@ -171,6 +172,7 @@ class PhotoSorter():
             elif k.MIME.split('/')[0]=='video':
                 clip = VideoFileClip(file)
                 duration.append(clip.duration)
+                clip.close()
                 make.append('N/A')
                 model.append('N/A')
 
@@ -185,7 +187,7 @@ class PhotoSorter():
         # get names of files to delete
         duplicates = metadata[~metadata.Filename.isin(\
                               metadata.drop_duplicates(\
-                              subset=['Filesize','Make','Model'],
+                              subset=['Filesize','Make','Model','Duration'],
                               keep='first').Filename)].Filename.to_list()
         files_after = len(duplicates)
         # delete duplicates
@@ -303,3 +305,65 @@ class PhotoSorter():
                 cur_fpath = os.path.join(os.getcwd(),file)
                 out_fpath = os.path.join(os.getcwd(),img_year,img_month,img_device,file)
                 shutil.move(cur_fpath, out_fpath)
+
+    def drop_duplicates2(self,path):
+        '''
+        A second function to drop duplicate. Works only for photos.
+        Computation is based on the 'date created' field of a photo.
+
+        Arguments:
+        *path* : str
+            Path to directory containing files
+        '''
+
+        os.chdir(path)
+        # get files in dir
+        files = [f for f in os.listdir('.') if os.path.isfile(f)]
+        files_before = len(files)
+        # build-up pandas dataframe of file metadata
+        name = []
+        time = []
+        pbar = tqdm(files)
+        for file in pbar:
+            pbar.set_description('Gathering metadata')
+            # determine filetype
+            k = filetype.guess(file)
+            if k.MIME.split('/')[0]=='image':
+                try:
+                    img = PIL.Image.open(file)
+                    exif = {PIL.ExifTags.TAGS[k]: v
+                            for k, v in img._getexif().items()
+                            if k in PIL.ExifTags.TAGS}
+                    d = exif['DateTimeOriginal']
+                    dd = d.split(' ')[0].split(':')
+                    tt = d.split(' ')[1].split(':')
+                    t = datetime.datetime(int(dd[0]),int(dd[1]),int(dd[2]),
+                                          int(tt[0]),int(tt[1]),int(tt[2]))
+                    time.append(t)
+                    name.append(file)
+                    img.close()
+                except:
+                    img = PIL.Image.open(file)
+                    name.append(file)
+                    time.append(numpy.nan)
+                    img.close()
+
+        time = [pandas.Timestamp(i) for i in time]
+        metadata = pandas.DataFrame({'Filename' :name,
+                                     'Time'     :time})
+
+        # sort by time
+        metadata = metadata.sort_values(by='Time').reset_index(drop=True)
+        # get names of files to delete
+        duplicates = metadata[~metadata.Filename.isin(\
+                              metadata.drop_duplicates(\
+                              subset=['Time'],
+                              keep='first').Filename)].Filename.to_list()
+        files_after = len(duplicates)
+        # delete duplicates
+        pbar = tqdm(duplicates)
+        for file in pbar:
+            pbar.set_description('Deleting files')
+            os.remove(file)
+
+        print('Deleted ' + str(files_after) + ' from a total of ' + str(files_before) + ' files')
